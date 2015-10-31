@@ -3,8 +3,7 @@ package main
 import "fmt"
 
 type Room struct {
-	Players  []*Player
-	incoming chan string
+	Players []*Player
 }
 
 type ChatMessage struct {
@@ -13,7 +12,7 @@ type ChatMessage struct {
 
 var global_room Room
 
-func (r *Room) addPlayer(p *Player) {
+func (r *Room) AddPlayer(p *Player) {
 	r.Players = append(r.Players, p)
 }
 
