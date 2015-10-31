@@ -12,16 +12,18 @@ type AuthResponse struct {
 	Success bool `json:"success"`
 }
 
-func (p *Player) handle_auth(data []byte) {
+func (p *Player) auth_hello(data []byte) {
 	var message AuthHello
 	if err := decodeJSON(data, &message); err != nil {
 		fmt.Println(err)
 	}
+	// TODO(rweichler) : Hit the API lololol
+	global_room.addPlayer(p)
+	p.Room = &global_room
 
-	// Log in the user
 	response := AuthResponse{
 		LobbyID: 1,
 		Success: true,
 	}
-	p.sendMessage("auth_response", response)
+	p.SendMessage("auth_response", response)
 }

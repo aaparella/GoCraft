@@ -18,7 +18,7 @@ type Message struct {
 	Data json.RawMessage `json:"data"`
 }
 
-func (p *Player) sendMessage(typ string, data interface{}) {
+func (p *Player) SendMessage(typ string, data interface{}) {
 	response := Response{
 		Type: typ,
 		Data: data,
@@ -36,6 +36,7 @@ type Player struct {
 	Conn     net.Conn
 	Username string
 	State    int // Can change to enum later
+	Room     *Room
 }
 
 func (p *Player) handle(data []byte) {
@@ -47,9 +48,10 @@ func (p *Player) handle(data []byte) {
 		// Valid message or so we think
 		switch mess.Type {
 		case "auth_hello":
-			p.handle_auth(mess.Data)
+			p.auth_hello(mess.Data)
+		case "chat_message":
+			p.chat_message(mess.Data)
 		}
-
 	}
 }
 
