@@ -16,6 +16,15 @@ func (r *Room) AddPlayer(p *Player) {
 	r.Players = append(r.Players, p)
 }
 
+func (r *Room) RemovePlayer(p *Player) {
+	for i, player := range r.Players {
+		if player == p {
+			r.Players = append(r.Players[:i], r.Players[i+1:]...)
+			return
+		}
+	}
+}
+
 func (r *Room) Broadcast(sender *Player, message string) {
 	mess := ChatMessage{Message: message}
 	for _, player := range r.Players {
@@ -27,7 +36,7 @@ func (r *Room) Broadcast(sender *Player, message string) {
 
 func (p *Player) chat_message(data []byte) {
 	var message ChatMessage
-	if err := decodeJSON(data, &message); err != nil {
+	if err := DecodeJSON(data, &message); err != nil {
 		fmt.Println(err)
 	}
 

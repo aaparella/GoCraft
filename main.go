@@ -10,6 +10,6 @@ func main() {
 			panic(err)
 		}
 		player := Player{Conn: conn, State: 0}
-		go player.listen()
+		go player.Listen()
 	}
 }

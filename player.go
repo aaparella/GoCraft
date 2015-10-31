@@ -27,7 +27,7 @@ func (p *Player) SendMessage(typ string, data interface{}) {
 	fmt.Fprintf(p.Conn, "%s", json)
 }
 
-func decodeJSON(data []byte, structure interface{}) error {
+func DecodeJSON(data []byte, structure interface{}) error {
 	reader := json.NewDecoder(bytes.NewBuffer(data))
 	return reader.Decode(structure)
 }
@@ -39,7 +39,7 @@ type Player struct {
 	Room     *Room
 }
 
-func (p *Player) handle(data []byte) {
+func (p *Player) Handle(data []byte) {
 	reader := json.NewDecoder(bytes.NewBuffer(data))
 	var mess Message
 	if err := reader.Decode(&mess); err != nil {
@@ -56,13 +56,15 @@ func (p *Player) handle(data []byte) {
 }
 
 // Runs in own goroutine
-func (p *Player) listen() {
+func (p *Player) Listen() {
 	reader := bufio.NewReader(p.Conn)
 	for {
 		line, err := reader.ReadBytes('\n')
 		if err != nil {
-			panic(err)
+			global_room.RemovePlayer(p)
+			p.Room = nil
+			return
 		}
-		p.handle(line)
+		p.Handle(line)
 	}
 }

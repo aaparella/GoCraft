@@ -14,11 +14,11 @@ type AuthResponse struct {
 
 func (p *Player) auth_hello(data []byte) {
 	var message AuthHello
-	if err := decodeJSON(data, &message); err != nil {
+	if err := DecodeJSON(data, &message); err != nil {
 		fmt.Println(err)
 	}
 	// TODO(rweichler) : Hit the API lololol
-	global_room.addPlayer(p)
+	global_room.AddPlayer(p)
 	p.Room = &global_room
 
 	response := AuthResponse{
