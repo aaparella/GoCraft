@@ -9,13 +9,17 @@ import (
 )
 
 type Response struct {
-	Type string      `json:"type"`
-	Data interface{} `json:"data"`
+	Type string
+	Data interface{}
 }
 
 type Message struct {
-	Type string          `json:"type"`
-	Data json.RawMessage `json:"data"`
+	Type string
+	Data json.RawMessage
+}
+
+type Error struct {
+	Error string
 }
 
 func (p *Player) SendMessage(typ string, data interface{}) {
@@ -24,7 +28,14 @@ func (p *Player) SendMessage(typ string, data interface{}) {
 		Data: data,
 	}
 	json, _ := json.Marshal(response)
-	fmt.Fprintf(p.Conn, "%s", json)
+	fmt.Fprintf(p.Conn, "%s\n", json)
+}
+
+func (p *Player) SendError(e string) {
+	err := Error{
+		Error: e,
+	}
+	p.SendMessage("error", err)
 }
 
 func DecodeJSON(data []byte, structure interface{}) error {
@@ -43,7 +54,7 @@ func (p *Player) Handle(data []byte) {
 	reader := json.NewDecoder(bytes.NewBuffer(data))
 	var mess Message
 	if err := reader.Decode(&mess); err != nil {
-		fmt.Fprintf(p.Conn, "%s", err)
+		p.SendError(err.Error())
 	} else {
 		// Valid message or so we think
 		switch mess.Type {
@@ -51,6 +62,8 @@ func (p *Player) Handle(data []byte) {
 			p.auth_hello(mess.Data)
 		case "chat_message":
 			p.chat_message(mess.Data)
+		default:
+			p.SendError("Unsupported command")
 		}
 	}
 }

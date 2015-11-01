@@ -16,6 +16,8 @@ func (p *Player) auth_hello(data []byte) {
 	var message AuthHello
 	if err := DecodeJSON(data, &message); err != nil {
 		fmt.Println(err)
+		p.SendError(err.Error())
+		return
 	}
 	// TODO(rweichler) : Hit the API lololol
 	global_room.AddPlayer(p)

@@ -7,7 +7,7 @@ type Room struct {
 }
 
 type ChatMessage struct {
-	Message string `json:"message"`
+	Message string
 }
 
 var global_room Room
@@ -38,6 +38,7 @@ func (p *Player) chat_message(data []byte) {
 	var message ChatMessage
 	if err := DecodeJSON(data, &message); err != nil {
 		fmt.Println(err)
+		p.SendError(err.Error())
 	}
 
 	p.Room.Broadcast(p, message.Message)
