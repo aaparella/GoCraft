@@ -6,13 +6,13 @@ import (
 )
 
 type AuthHello struct {
-	User string `json:"user"`
-	Pass string `json:"pass"`
+	User string
+	Pass string
 }
 
 type AuthResponse struct {
-	LobbyID int  `json:"lobby_id"`
-	Success bool `json:"success"`
+	LobbyID int `json:"lobby_id"`
+	Success bool
 }
 
 /// Perform the authentication check
