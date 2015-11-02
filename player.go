@@ -55,7 +55,7 @@ type PlayerState int
 const (
 	Unknown PlayerState = iota
 	InLobby
-	Ingame
+	InGame
 )
 
 /// Player model.
@@ -85,6 +85,8 @@ func (p *Player) Handle(data []byte) {
 			p.chat_message(mess.Data)
 		case "host_game":
 			p.host_game(mess.Data)
+		case "request_games":
+			p.request_games(mess.Data)
 		case "join_game":
 			p.join_game(mess.Data)
 		default:

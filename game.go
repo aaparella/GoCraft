@@ -7,13 +7,14 @@ import (
 )
 
 type Game struct {
+	Host      string
 	Players   []string
 	Map, Name string
 	ID        string
 }
 
 type AvailableGames struct {
-	Games []Game
+	Games []*Game
 }
 
 type NewGame struct {
@@ -24,10 +25,14 @@ type HostResponse struct {
 	GameID string
 }
 
-var hosted_games []Game
+type JoinGame struct {
+	GameID string
+}
+
+var hosted_games []*Game
 var waiting_players []*Player
 
-func notifyWaiting(game Game) {
+func notifyWaiting(game *Game) {
 	newGame := NewGame{
 		Map:  game.Map,
 		Name: game.Name,
@@ -40,6 +45,25 @@ func notifyWaiting(game Game) {
 }
 
 func (p *Player) join_game(data []byte) {
+	var mess JoinGame
+	if err := DecodeJSON(data, &mess); err != nil {
+		p.SendError(err.Error())
+		return
+	}
+
+	for _, game := range hosted_games {
+		if game.ID == mess.GameID {
+			game.Players = append(game.Players, p.Username)
+			p.State = InGame
+			p.SendMessage("game_joined", nil)
+			return
+		}
+	}
+
+	p.SendError("Game could not be found")
+}
+
+func (p *Player) request_games(data []byte) {
 	waiting_players = append(waiting_players, p)
 	resp := AvailableGames{
 		Games: hosted_games,
@@ -57,7 +81,7 @@ func (p *Player) host_game(data []byte) {
 		return
 	}
 
-	var game Game
+	var game *Game
 	if err := DecodeJSON(data, &game); err != nil {
 		fmt.Println(err)
 		p.SendError(err.Error())
@@ -65,6 +89,7 @@ func (p *Player) host_game(data []byte) {
 	}
 	game.ID = uuid.New()
 	game.Players = append(game.Players, p.Username)
+	game.Host = p.Username
 
 	// Add the game to the list of hosted games
 	hosted_games = append(hosted_games, game)
