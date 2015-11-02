@@ -22,8 +22,8 @@ type Error struct {
 	Error string
 }
 
-/// Send message to client
-/// Take type string, and the data object as arguments
+/// SendMessage sends passed message to client.
+/// Take type string, and the data object as arguments.
 func (p *Player) SendMessage(typ string, data interface{}) {
 	response := Response{
 		Type: typ,
@@ -33,9 +33,9 @@ func (p *Player) SendMessage(typ string, data interface{}) {
 	fmt.Fprintf(p.Conn, "%s\n", json)
 }
 
-/// Send an error
+/// SendError sends an error string to client in proper format.
 /// Takes string instead of error object for when we send errors that
-/// are not embodied in actual error objects
+/// are not embodied in actual error objects.
 func (p *Player) SendError(e string) {
 	err := Error{
 		Error: e,
@@ -43,13 +43,16 @@ func (p *Player) SendError(e string) {
 	p.SendMessage("error", err)
 }
 
-/// Decode data into structure
-/// Argument structure needs to be a pointer to the desired structure
+/// DecodeJSON unmarshals data into structure.
+/// Argument structure needs to be a pointer to the desired structure.
 func DecodeJSON(data []byte, structure interface{}) error {
 	reader := json.NewDecoder(bytes.NewBuffer(data))
 	return reader.Decode(structure)
 }
 
+/// Player model.
+/// Includes connection for reading / writing.
+/// Necessary state information included as well.
 type Player struct {
 	Conn     net.Conn
 	Username string
@@ -57,8 +60,9 @@ type Player struct {
 	Room     *Room
 }
 
-/// Get the type of the message and switch based on that type
-/// Default case is sending an unsupported command error
+/// Handle.
+/// Get the type of the message and switch based on that type.
+/// Default case is sending an unsupported command error.
 func (p *Player) Handle(data []byte) {
 	reader := json.NewDecoder(bytes.NewBuffer(data))
 	var mess Message
@@ -77,7 +81,9 @@ func (p *Player) Handle(data []byte) {
 	}
 }
 
-// Runs in own goroutine
+/// Listen listens for each message received, and calls handler.
+/// Also does cleanup and teardown for Player struct.
+/// Runs in own goroutine.
 func (p *Player) Listen() {
 	reader := bufio.NewReader(p.Conn)
 	for {

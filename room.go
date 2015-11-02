@@ -25,6 +25,8 @@ func (r *Room) RemovePlayer(p *Player) {
 	}
 }
 
+/// Broadcast sends passed message to each player in the room other than
+/// the sender.
 func (r *Room) Broadcast(sender *Player, message string) {
 	mess := ChatMessage{Message: message}
 	for _, player := range r.Players {
@@ -34,9 +36,9 @@ func (r *Room) Broadcast(sender *Player, message string) {
 	}
 }
 
-/// Handles receiving a chat message from a client
-/// Broadcasts the message to everyone in the chatroom that that user is in
-/// Does not send message back to the user who sent it
+/// chat_message handles receiving a chat message from a client.
+/// Broadcasts the message to everyone in the chatroom that that user is in.
+/// Does not send message back to the user who sent it.
 func (p *Player) chat_message(data []byte) {
 	var message ChatMessage
 	if err := DecodeJSON(data, &message); err != nil {
