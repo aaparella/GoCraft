@@ -50,13 +50,21 @@ func DecodeJSON(data []byte, structure interface{}) error {
 	return reader.Decode(structure)
 }
 
+type PlayerState int
+
+const (
+	Unknown PlayerState = iota
+	InLobby
+	Ingame
+)
+
 /// Player model.
 /// Includes connection for reading / writing.
 /// Necessary state information included as well.
 type Player struct {
 	Conn     net.Conn
 	Username string
-	State    int // Can change to enum later
+	State    PlayerState
 	Room     *Room
 }
 
@@ -75,6 +83,10 @@ func (p *Player) Handle(data []byte) {
 			p.auth_hello(mess.Data)
 		case "chat_message":
 			p.chat_message(mess.Data)
+		case "host_game":
+			p.host_game(mess.Data)
+		case "join_game":
+			p.join_game(mess.Data)
 		default:
 			p.SendError("Unsupported command")
 		}

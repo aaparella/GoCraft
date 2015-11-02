@@ -43,9 +43,13 @@ func (p *Player) auth_hello(data []byte) {
 		return
 	}
 
-	// Add player to global room, send auth_success message
+	// Add player to global room, update name, etc.
 	global_room.AddPlayer(p)
 	p.Room = &global_room
+	p.State = InLobby
+	p.Username = message.User
+
+	// Send auth_success message
 	response := AuthResponse{
 		LobbyID: 1,
 		Success: true,
