@@ -5,6 +5,8 @@ import (
 	"net/http"
 )
 
+/// Auth Hello message struct
+/// Decoded from JSON, has username and password fields
 type AuthHello struct {
 	User string
 	Pass string
@@ -27,18 +29,21 @@ func (p *Player) auth_hello(data []byte) {
 		return
 	}
 
+	// Perform request
 	client := &http.Client{}
 	req, _ := http.NewRequest("POST", "http://localhost:8080/login", nil)
 	req.Header.Set("username", message.User)
 	req.Header.Set("password", message.Pass)
 	resp, err := client.Do(req)
 
+	// If there was an error, or the status code is not 200, auth failed
 	if err != nil || resp.StatusCode != 200 {
 		fmt.Println(err)
 		p.SendError("Could not authenticate")
 		return
 	}
 
+	// Add player to global room, send auth_success message
 	global_room.AddPlayer(p)
 	p.Room = &global_room
 	response := AuthResponse{

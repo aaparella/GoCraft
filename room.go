@@ -34,6 +34,9 @@ func (r *Room) Broadcast(sender *Player, message string) {
 	}
 }
 
+/// Handles receiving a chat message from a client
+/// Broadcasts the message to everyone in the chatroom that that user is in
+/// Does not send message back to the user who sent it
 func (p *Player) chat_message(data []byte) {
 	var message ChatMessage
 	if err := DecodeJSON(data, &message); err != nil {

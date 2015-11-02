@@ -22,6 +22,8 @@ type Error struct {
 	Error string
 }
 
+/// Send message to client
+/// Take type string, and the data object as arguments
 func (p *Player) SendMessage(typ string, data interface{}) {
 	response := Response{
 		Type: typ,
@@ -31,6 +33,9 @@ func (p *Player) SendMessage(typ string, data interface{}) {
 	fmt.Fprintf(p.Conn, "%s\n", json)
 }
 
+/// Send an error
+/// Takes string instead of error object for when we send errors that
+/// are not embodied in actual error objects
 func (p *Player) SendError(e string) {
 	err := Error{
 		Error: e,
@@ -38,6 +43,8 @@ func (p *Player) SendError(e string) {
 	p.SendMessage("error", err)
 }
 
+/// Decode data into structure
+/// Argument structure needs to be a pointer to the desired structure
 func DecodeJSON(data []byte, structure interface{}) error {
 	reader := json.NewDecoder(bytes.NewBuffer(data))
 	return reader.Decode(structure)
@@ -50,6 +57,8 @@ type Player struct {
 	Room     *Room
 }
 
+/// Get the type of the message and switch based on that type
+/// Default case is sending an unsupported command error
 func (p *Player) Handle(data []byte) {
 	reader := json.NewDecoder(bytes.NewBuffer(data))
 	var mess Message
