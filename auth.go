@@ -45,9 +45,11 @@ func (p *Player) auth_hello(data []byte) {
 
 	// Add player to global room, update name, etc.
 	global_room.AddPlayer(p)
+	p.Mutex.Lock()
 	p.Room = &global_room
 	p.State = InLobby
 	p.Username = message.User
+	p.Mutex.Unlock()
 
 	// Send auth_success message
 	response := AuthResponse{

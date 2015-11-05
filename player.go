@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+	"sync"
 )
 
 type Response struct {
@@ -25,12 +26,14 @@ type Error struct {
 /// SendMessage sends passed message to client.
 /// Take type string, and the data object as arguments.
 func (p *Player) SendMessage(typ string, data interface{}) {
+	p.Mutex.Lock()
 	response := Response{
 		Type: typ,
 		Data: data,
 	}
 	json, _ := json.Marshal(response)
 	fmt.Fprintf(p.Conn, "%s\n", json)
+	p.Mutex.Unlock()
 }
 
 /// SendError sends an error string to client in proper format.
@@ -62,6 +65,7 @@ const (
 /// Includes connection for reading / writing.
 /// Necessary state information included as well.
 type Player struct {
+	Mutex    sync.Mutex
 	Conn     net.Conn
 	Username string
 	State    PlayerState
