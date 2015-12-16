@@ -9,7 +9,7 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		player := Player{Conn: conn, State: 0}
+		player := Player{Conn: conn, State: new(Unauthorized)}
 		go player.Listen()
 	}
 }

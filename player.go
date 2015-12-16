@@ -53,13 +53,12 @@ func DecodeJSON(data []byte, structure interface{}) error {
 	return reader.Decode(structure)
 }
 
-type PlayerState int
-
-const (
-	Unknown PlayerState = iota
-	InLobby
-	InGame
-)
+/// PlayerState represents the status of the Player
+/// Handles messages differently based on the state
+/// Silos the behavior for each state into one place
+type PlayerState interface {
+	Handle(Message, *Player)
+}
 
 /// Player model.
 /// Includes connection for reading / writing.
@@ -77,25 +76,26 @@ type Player struct {
 /// Default case is sending an unsupported command error.
 func (p *Player) Handle(data []byte) {
 	reader := json.NewDecoder(bytes.NewBuffer(data))
-	var mess Message
-	if err := reader.Decode(&mess); err != nil {
+	var message Message
+	if err := reader.Decode(&message); err != nil {
 		p.SendError(err.Error())
 	} else {
+		p.State.Handle(message, p)
 		// Valid message or so we think
-		switch mess.Type {
-		case "auth_hello":
-			p.auth_hello(mess.Data)
-		case "chat_message":
-			p.chat_message(mess.Data)
-		case "host_game":
-			p.host_game(mess.Data)
-		case "request_games":
-			p.request_games(mess.Data)
-		case "join_game":
-			p.join_game(mess.Data)
-		default:
-			p.SendError("Unsupported command")
-		}
+		// switch mess.Type {
+		// case "auth_hello":
+		// 	p.auth_hello(mess.Data)
+		// case "chat_message":
+		// 	p.chat_message(mess.Data)
+		// case "host_game":
+		// 	p.host_game(mess.Data)
+		// case "request_games":
+		// 	p.request_games(mess.Data)
+		// case "join_game":
+		// 	p.join_game(mess.Data)
+		// default:
+		// 	p.SendError("Unsupported command")
+		// }
 	}
 }
 

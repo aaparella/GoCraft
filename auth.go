@@ -17,13 +17,17 @@ type AuthResponse struct {
 	Success bool
 }
 
-/// auth_hello handles authentication check.
-/// Hits API to check if the credentials are valid.
-/// Assumes any response other than a 200 is an indication.
-/// that the crdentials provided were invalid.
-func (p *Player) auth_hello(data []byte) {
+type Unauthorized struct {
+}
+
+func (u *Unauthorized) Handle(data Message, p *Player) {
+	if data.Type != "auth_hello" {
+		p.SendError("User not yet authenticated")
+		return
+	}
+
 	var message AuthHello
-	if err := DecodeJSON(data, &message); err != nil {
+	if err := DecodeJSON(data.Data, &message); err != nil {
 		fmt.Println(err)
 		p.SendError(err.Error())
 		return
@@ -47,7 +51,7 @@ func (p *Player) auth_hello(data []byte) {
 	global_room.AddPlayer(p)
 	p.Mutex.Lock()
 	p.Room = &global_room
-	p.State = InLobby
+	p.State = new(GameLobby)
 	p.Username = message.User
 	p.Mutex.Unlock()
 
@@ -57,5 +61,4 @@ func (p *Player) auth_hello(data []byte) {
 		Success: true,
 	}
 	p.SendMessage("auth_response", response)
-	resp.Body.Close()
 }
